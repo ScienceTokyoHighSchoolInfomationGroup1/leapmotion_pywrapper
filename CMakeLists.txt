@@ -11,7 +11,7 @@ elseif (APPLE)
    set(ULTRALEAP_PATH_ROOT "/Applications/Ultraleap\ Hand\ Tracking.app/Contents/LeapSDK/lib/cmake/LeapSDK")
 else()
    # Linux and other OSs
-   set(ULTRALEAP_PATH_ROOT "")
+   set(ULTRALEAP_PATH_ROOT "/opt/LeapDeveloperKit_2.3.1+31549_linux/")
 endif()
 
 find_package(LeapSDK
