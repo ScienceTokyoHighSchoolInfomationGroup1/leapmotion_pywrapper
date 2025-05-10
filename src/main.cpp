@@ -31,10 +31,4 @@ PYBIND11_MODULE(cmake_example, m) {
 
         Some other explanation about the subtract function.
     )pbdoc");
-
-#ifndef VERSION_INFO
-#define VERSION_INFO "dev"
-#endif
-
-    m.attr("__version__") = py::str(VERSION_INFO);
 }
