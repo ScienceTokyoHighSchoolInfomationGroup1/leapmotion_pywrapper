@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # setup leap sdk
 
 if (WIN32)
-   set(ULTRALEAP_PATH_ROOT "$ENV{ProgramFiles}/Ultraleap")
+   set(ULTRALEAP_PATH_ROOT "C:/Program Files/Ultraleap")
 elseif (APPLE)
    set(ULTRALEAP_PATH_ROOT "/Applications/Ultraleap\ Hand\ Tracking.app/Contents/LeapSDK/lib/cmake/LeapSDK")
 else()
