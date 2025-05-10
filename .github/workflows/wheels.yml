@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v4
@@ -59,9 +59,12 @@ jobs:
     - name: Set up leapmotion SDK (on Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        wget -q https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/2.3.1/tracking-software-linux-2.3.1.tar.gz
-        sudo tar -xzf tracking-software-linux-2.3.1.tar.gz -C /opt
-        
+        wget -qO - https://repo.ultraleap.com/keys/apt/gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/ultraleap.gpg
+        echo 'deb [arch=amd64] https://repo.ultraleap.com/apt stable main' | sudo tee /etc/apt/sources.list.d/ultraleap.list
+        sudo apt update
+        sudo apt install -y ultraleap-hand-tracking
+        leapctl eula -y
+
     
 
     - uses: pypa/cibuildwheel@v2.23
