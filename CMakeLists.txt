@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.4...3.18)
 project(leapmotion_conn VERSION 1.0.0 LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # setup leap sdk
 if (WIN32)
