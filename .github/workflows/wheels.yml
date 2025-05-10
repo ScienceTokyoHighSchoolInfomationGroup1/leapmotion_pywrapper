@@ -43,6 +43,29 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    
+    - name: Set up leapmotion SDK (on Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        wget -q https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-windows-5.20.0.exe
+        ./tracking-software-windows-5.20.0.exe /VERYSILENT /NOCANCEL /NORESTART /SUPPRESSMSGBOXES 
+        rm tracking-software-windows-5.20.0.exe
+    - name: Set up leapmotion SDK (on macOS)
+      if: matrix.os == 'macos-13'
+      run: |
+        wget -q https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-macos-intel-5.20.0.pkg
+        sudo installer -pkg tracking-software-macos-intel-5.20.0.pkg -target /
+        rm tracking-software-macos-intel-5.20.0.pkg
+    
+    - name: Set up leapmotion SDK (on Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        wget -qO - https://repo.ultraleap.com/keys/apt/gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/ultraleap.gpg
+        echo 'deb [arch=amd64] https://repo.ultraleap.com/apt stable main' | sudo tee /etc/apt/sources.list.d/ultraleap.list
+        sudo apt update
+        sudo apt install -y ultraleap-hand-tracking 
+        leapctl eula --accept
+    
 
     - uses: pypa/cibuildwheel@v2.23
       env:
