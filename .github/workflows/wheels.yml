@@ -110,16 +110,16 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        pattern: ./*.whl
         path: dist
         merge-multiple: true
+    - name: ls dist
+      run: ls -l dist
 
     # release to Github Release
     - name: Upload to GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ github.event.release.tag_name }}
-        files: dist/*.whl
-        overwrite: true
+        files: dist/*
         name: ${{ github.event.release.name }}
         body: ${{ github.event.release.body }}
