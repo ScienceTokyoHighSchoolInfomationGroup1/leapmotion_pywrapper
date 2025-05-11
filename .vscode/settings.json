@@ -1,5 +1,5 @@
 {
     "cmake.configureArgs": [
-        "-DPYTHON_EXECUTABLE:FILEPATH=C:/dev/blender_addon_test/leap_dll/3.11.7/python.exe",
-    ],
+        "-DPYTHON_EXECUTABLE=C:/Users/yosshipaopao/.pyenv/pyenv-win/versions/3.11.9/python.exe",
+    ]
 }

@@ -73,9 +73,18 @@ jobs:
 
     
 
-    - uses: pypa/cibuildwheel@v2.23
-      env:
-        CIBW_ARCHS_MACOS: auto universal2
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: "pip"
+        cache-dependency-path: requirements.txt
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    
+    - name: build wheels
+      run: python -m build   
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -85,7 +94,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cibw-wheels-${{ matrix.os }}
-        path: wheelhouse/*.whl
+        path: dist/*.whl
 
 
   upload_all:
@@ -101,10 +110,16 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        pattern: cibw-*
+        pattern: *.whl
         path: dist
         merge-multiple: true
 
-    - uses: pypa/gh-action-pypi-publish@release/v1
+    # release to Github Release
+    - name: Upload to GitHub Release
+      uses: softprops/action-gh-release@v2
       with:
-        password: ${{ secrets.pypi_password }}
+        tag_name: ${{ github.event.release.tag_name }}
+        files: dist/*.whl
+        overwrite: true
+        name: ${{ github.event.release.name }}
+        body: ${{ github.event.release.body }}
