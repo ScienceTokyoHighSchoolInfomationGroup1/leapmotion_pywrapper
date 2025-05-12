@@ -8,20 +8,18 @@
 #endif
 #include <thread>
 
-
 static void *allocate(uint32_t size, eLeapAllocatorType typeHint, void *state)
 {
-    void *ptr = malloc(size);
-    return ptr;
+  void *ptr = malloc(size);
+  return ptr;
 }
 
 static void deallocate(void *ptr, void *state)
 {
-    if (!ptr)
-        return;
-    free(ptr);
+  if (!ptr)
+    return;
+  free(ptr);
 }
-
 
 Connection::Connection() : running_(false), connected_(false) {}
 
@@ -46,7 +44,6 @@ bool Connection::open()
 
   running_ = true;
   messageThread_ = std::thread(&Connection::messageLoop, this);
-
 
   {
     LEAP_ALLOCATOR allocator = {allocate, deallocate, nullptr};

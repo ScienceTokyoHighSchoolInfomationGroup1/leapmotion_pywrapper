@@ -11,7 +11,7 @@ class leap_device_wrapper
 {
 public:
   leap_device_wrapper(LEAP_DEVICE device) : device_(device) {}
-  ~leap_device_wrapper() { }
+  ~leap_device_wrapper() {}
   LEAP_DEVICE get() const { return device_; }
   LEAP_DEVICE device_;
 };
