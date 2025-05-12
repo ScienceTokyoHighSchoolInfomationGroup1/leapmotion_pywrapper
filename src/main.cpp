@@ -3,6 +3,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/complex.h>
 #include <pybind11/chrono.h>
+#include <pybind11/numpy.h>
 
 #include "Connection.hpp"
 #include "LeapC.h"
@@ -38,7 +39,6 @@ PYBIND11_MODULE(leapmotion_conn, m)
         .value("eLeapRS_UnknownTrackingFrameID", eLeapRS_UnknownTrackingFrameID)
         .value("eLeapRS_RoutineIsNotSeer", eLeapRS_RoutineIsNotSeer)
         .value("eLeapRS_TimestampTooEarly", eLeapRS_TimestampTooEarly)
-        .value("eLeapRS_ConcurrentPoll", eLeapRS_ConcurrentPoll)
         .value("eLeapRS_ConcurrentPoll", eLeapRS_ConcurrentPoll)
         .value("eLeapRS_NotStreaming", eLeapRS_NotStreaming)
         .value("eLeapRS_CannotOpenDevice", eLeapRS_CannotOpenDevice)
@@ -95,7 +95,9 @@ PYBIND11_MODULE(leapmotion_conn, m)
             if (i == 0) return v.x;
             else if (i == 1) return v.y;
             else if (i == 2) return v.z;
-            throw py::index_error("Index out of range for LEAP_VECTOR"); });
+            throw py::index_error("Index out of range for LEAP_VECTOR"); })
+        .def("array", [](const LEAP_VECTOR &v)
+             { return py::array_t<float>({v.x, v.y, v.z}); });
 
     py::class_<LEAP_QUATERNION>(m, "Quaternion")
         .def_readonly("x", &LEAP_QUATERNION::x)
@@ -108,7 +110,9 @@ PYBIND11_MODULE(leapmotion_conn, m)
             else if (i == 1) return q.y;
             else if (i == 2) return q.z;
             else if (i == 3) return q.w;
-            throw py::index_error("Index out of range for LEAP_QUATERNION"); });
+            throw py::index_error("Index out of range for LEAP_QUATERNION"); })
+        .def("array", [](const LEAP_QUATERNION &q)
+             { return py::array_t<float>({q.x, q.y, q.z, q.w}); });
 
     py::class_<LEAP_PALM>(m, "Palm")
         .def_readonly("position", &LEAP_PALM::position)

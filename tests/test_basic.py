@@ -1,4 +1,4 @@
-import cmake_example as m
+import leapmotion_conn as m
 
 
 def test_main():
