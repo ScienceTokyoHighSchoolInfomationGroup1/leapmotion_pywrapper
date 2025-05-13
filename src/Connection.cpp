@@ -61,8 +61,11 @@ void Connection::close()
 
   running_ = false;
   LeapCloseConnection(connectionHandle_);
-  if (messageThread_.joinable())
+  if (messageThread_.joinable()) {
+    running_ = false; // Ensure the loop in messageLoop exits
     messageThread_.join();
+  }
+  messageThread_ = std::thread(); // Reset the thread object after joining
 }
 
 void Connection::destroy()
