@@ -62,9 +62,10 @@ void Connection::close()
   running_ = false;
   LeapCloseConnection(connectionHandle_);
   if (messageThread_.joinable()) {
-    running_ = false; // Ensure the loop in messageLoop exits
+    debugMessageCallback_("Joining message thread...");
     messageThread_.join();
   }
+  debugMessageCallback_("Message thread joined.");
   messageThread_ = std::thread(); // Reset the thread object after joining
 }
 
@@ -153,6 +154,7 @@ void Connection::messageLoop()
       continue;
     handleEvent(msg);
   }
+  return;
 }
 
 void Connection::handleEvent(const LEAP_CONNECTION_MESSAGE &msg)

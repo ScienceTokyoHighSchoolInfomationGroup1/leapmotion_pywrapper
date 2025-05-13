@@ -192,5 +192,6 @@ PYBIND11_MODULE(leapmotion_conn, m)
         .def("setOnFrame", &Connection::setOnFrame, "Set on frame callback")
         .def("setOnImage", &Connection::setOnImage, "Set on image callback")
         .def("setOnIMU", &Connection::setOnIMU, "Set on IMU callback")
-        .def("setOnTrackingMode", &Connection::setOnTrackingMode, "Set on tracking mode callback");
+        .def("setOnTrackingMode", &Connection::setOnTrackingMode, "Set on tracking mode callback")
+        .def("setDebugMessageCallback", &Connection::setDebugMessageCallback, "Set debug message callback");
 }

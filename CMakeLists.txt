@@ -76,3 +76,13 @@ target_link_libraries(
 # define (VERSION_INFO) here.
 target_compile_definitions(leapmotion_conn
                            PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
+
+add_executable(
+	leapmotion_conn_test
+	"src/test.cpp"
+)
+target_link_libraries(
+	leapmotion_conn_test
+	PRIVATE
+		libConnectionCXX
+		LeapSDK::LeapC)

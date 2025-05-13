@@ -44,6 +44,13 @@ public:
   void setOnIMU(std::function<void(const LEAP_IMU_EVENT *)> cb);
   void setOnTrackingMode(std::function<void(const LEAP_TRACKING_MODE_EVENT *)> cb);
 
+  void setDebugMessageCallback(std::function<void(const char *)> cb) { debugMessageCallback_ = cb; }
+  void debugMessage(const char *message)
+  {
+    if (debugMessageCallback_)
+      debugMessageCallback_(message);
+  }
+
   bool isConnected() const;
   LEAP_CONNECTION connectionHandle_ = nullptr;
 
@@ -72,6 +79,9 @@ private:
   std::function<void(const LEAP_IMAGE_EVENT *)> onImage_;
   std::function<void(const LEAP_IMU_EVENT *)> onIMU_;
   std::function<void(const LEAP_TRACKING_MODE_EVENT *)> onTrackingMode_;
+
+  // debug message callback
+  std::function<void(const char *)> debugMessageCallback_;
 };
 
 #endif // EXAMPLE_CONNECTION_HPP
