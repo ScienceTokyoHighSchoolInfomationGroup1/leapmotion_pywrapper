@@ -96,8 +96,14 @@ PYBIND11_MODULE(leapmotion_conn, m)
             else if (i == 1) return v.y;
             else if (i == 2) return v.z;
             throw py::index_error("Index out of range for LEAP_VECTOR"); })
-        .def("array", [](const LEAP_VECTOR &v)
-             { return py::array_t<float>({v.x, v.y, v.z}); });
+        .def_property_readonly("array", [](const LEAP_VECTOR &v)
+             { 
+                py::array_t<float> arr(3);
+                auto buf = arr.mutable_data();
+                buf[0] = v.x;
+                buf[1] = v.y;
+                buf[2] = v.z;
+                return arr; });
 
     py::class_<LEAP_QUATERNION>(m, "Quaternion")
         .def_readonly("x", &LEAP_QUATERNION::x)
@@ -111,8 +117,15 @@ PYBIND11_MODULE(leapmotion_conn, m)
             else if (i == 2) return q.z;
             else if (i == 3) return q.w;
             throw py::index_error("Index out of range for LEAP_QUATERNION"); })
-        .def("array", [](const LEAP_QUATERNION &q)
-             { return py::array_t<float>({q.x, q.y, q.z, q.w}); });
+        .def_property_readonly("array", [](const LEAP_QUATERNION &q)
+                { 
+                    py::array_t<float> arr(4);
+                    auto buf = arr.mutable_data();
+                    buf[0] = q.x;
+                    buf[1] = q.y;
+                    buf[2] = q.z;
+                    buf[3] = q.w;
+                    return arr; });
 
     py::class_<LEAP_PALM>(m, "Palm")
         .def_readonly("position", &LEAP_PALM::position)
