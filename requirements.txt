@@ -3,3 +3,5 @@ scikit-build-core
 pybind11
 cmake
 setuptools
+wheel
+ninja
