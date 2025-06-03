@@ -57,6 +57,7 @@ jobs:
         mkdir -p ./download
         # Download the Leap Motion SDK installer
         curl -L -o ./download/tracking-software-windows-5.20.0.exe https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-windows-5.20.0.exe
+    
     - name: Install leapmotion SDK (on Windows)
       if: matrix.os == 'windows-latest'
       run: |
