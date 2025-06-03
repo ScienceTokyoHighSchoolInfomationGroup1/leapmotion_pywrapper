@@ -44,23 +44,30 @@ jobs:
       with:
         submodules: true
     
+    - name: cache downloads
+      id: cache-downloads
+      uses: actions/cache@v4
+      with:
+        path: ./download
+        key: download-${{ runner.os }}
+        
     - name: Set up leapmotion SDK (on Windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest' && steps.cache-downloads.outputs.cache-hit != 'true'
       run: |
-        curl -L -o tracking-software-windows-5.20.0.exe https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-windows-5.20.0.exe
-        $proc = Start-Process -FilePath tracking-software-windows-5.20.0.exe -ArgumentList '/VERYSILENT', '/NOCANCEL', '/NORESTART', '/SUPPRESSMSGBOXES' -Verb RunAs -PassThru
+        curl -L -o ./download/tracking-software-windows-5.20.0.exe https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-windows-5.20.0.exe
+        $proc = Start-Process -FilePath ./download/tracking-software-windows-5.20.0.exe -ArgumentList '/VERYSILENT', '/NOCANCEL', '/NORESTART', '/SUPPRESSMSGBOXES' -Verb RunAs -PassThru
         $proc.WaitForExit()
         if ($proc.ExitCode -ne 0) {
           Write-Host "Installation failed with exit code $($proc.ExitCode)"
           exit 1
         }
-        Remove-Item tracking-software-windows-5.20.0.exe -Force
-    - name: Set up leapmotion SDK (on macOS)
-      if: matrix.os == 'macos-13'
-      run: |
-        wget -q https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-macos-intel-5.20.0.pkg
-        sudo installer -pkg tracking-software-macos-intel-5.20.0.pkg -target /
-        rm tracking-software-macos-intel-5.20.0.pkg
+        Remove-Item ./download/tracking-software-windows-5.20.0.exe -Force
+    # - name: Set up leapmotion SDK (on macOS)
+    #   if: matrix.os == 'macos-13'
+    #   run: |
+    #     wget -q https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-macos-intel-5.20.0.pkg
+    #     sudo installer -pkg tracking-software-macos-intel-5.20.0.pkg -target /
+    #     rm tracking-software-macos-intel-5.20.0.pkg
     
     - name: Set up leapmotion SDK (on Linux)
       if: matrix.os == 'ubuntu-latest'
@@ -70,8 +77,6 @@ jobs:
         sudo apt update
         sudo apt install -y ultraleap-hand-tracking
         leapctl eula -y
-
-    
 
     - name: Set up Python
       uses: actions/setup-python@v5
