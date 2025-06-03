@@ -5,3 +5,4 @@ cmake
 setuptools
 wheel
 ninja
+pybind11-stubgen

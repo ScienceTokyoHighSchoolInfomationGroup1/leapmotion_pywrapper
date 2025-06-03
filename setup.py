@@ -6,6 +6,7 @@ from pathlib import Path
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+import pybind11_stubgen
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
 PLAT_TO_CMAKE = {
@@ -122,6 +123,23 @@ class CMakeBuild(build_ext):
             ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
         )
 
+        # Generate stubs for the extension module
+        # This is optional, but useful for type checking and IDE support.
+        if self.distribution.get_name() == "leapmotion_conn":
+            # print pyd file full path
+            pyd_file = ext_fullpath.with_suffix(".pyd")
+            # get folder of pyd file
+            pyd_folder = pyd_file.parent
+            # add the pyd folder to the sys.path
+            sys.path.insert(0, str(pyd_folder))
+            # Generate stubs using pybind11-stubgen
+            pybind11_stubgen.main(
+                [
+                    ext.name,
+                    "--output-dir",
+                    str(pyd_folder),
+                ]
+            )
 
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
@@ -137,4 +155,11 @@ setup(
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
     python_requires=">=3.7",
+    install_requires=[
+        "numpy>=1.19.0",
+    ],
+    package_data={
+        "leapmotion_conn": ["*.pyi"],
+    },
+    include_package_data=True,
 )

@@ -21,6 +21,36 @@ PYBIND11_MODULE(leapmotion_conn, m)
 
     m.def("add", &add, "A function that adds two numbers",
           py::arg("a"), py::arg("b"));
+    py::class_<LEAP_VECTOR>(m, "Vector")
+        .def_readonly("x", &LEAP_VECTOR::x)
+        .def_readonly("y", &LEAP_VECTOR::y)
+        .def_readonly("z", &LEAP_VECTOR::z)
+        .def("__getitem__", [](const LEAP_VECTOR &v, size_t i)
+             {
+            if (i == 0) return v.x;
+            else if (i == 1) return v.y;
+            else if (i == 2) return v.z;
+            throw py::index_error("Index out of range for LEAP_VECTOR"); })
+        .def_property_readonly("array", [](const LEAP_VECTOR &v)
+             { 
+                py::array_t<float> arr(3);
+                auto buf = arr.mutable_data();
+                buf[0] = v.x;
+                buf[1] = v.y;
+                buf[2] = v.z;
+                return arr; });
+    
+    py::enum_<eLeapDevicePID>(m, "DevicePID")
+        .value("eLeapDevicePID_Unknown", eLeapDevicePID_Unknown)
+        .value("eLeapDevicePID_Peripheral", eLeapDevicePID_Peripheral)
+        .value("eLeapDevicePID_Dragonfly", eLeapDevicePID_Dragonfly)
+        .value("eLeapDevicePID_Nightcrawler", eLeapDevicePID_Nightcrawler)
+        .value("eLeapDevicePID_Rigel", eLeapDevicePID_Rigel)
+        .value("eLeapDevicePID_SIR170", eLeapDevicePID_SIR170)
+        .value("eLeapDevicePID_3Di", eLeapDevicePID_3Di)
+        .value("eLeapDevicePID_LMC2", eLeapDevicePID_LMC2)
+        .value("eLeapDevicePID_Invalid", eLeapDevicePID_Invalid)
+        .export_values();
 
     py::enum_<eLeapRS>(m, "Result")
         .value("eLeapRS_Success", eLeapRS_Success)
@@ -63,7 +93,7 @@ PYBIND11_MODULE(leapmotion_conn, m)
         .def_readonly("h_fov", &LEAP_DEVICE_INFO::h_fov)
         .def_readonly("v_fov", &LEAP_DEVICE_INFO::v_fov)
         .def_readonly("range", &LEAP_DEVICE_INFO::range);
-
+    
     py::enum_<eLeapDeviceStatus>(m, "DeviceStatus")
         .value("eLeapDeviceStatus_Streaming", eLeapDeviceStatus_Streaming)
         .value("eLeapDeviceStatus_Paused", eLeapDeviceStatus_Paused)
@@ -77,7 +107,21 @@ PYBIND11_MODULE(leapmotion_conn, m)
         .value("eLeapDeviceStatus_BadControl", eLeapDeviceStatus_BadControl)
         .export_values();
 
-    py::class_<_LEAP_FRAME_HEADER>(m, "FrameHeader")
+    py::class_<LEAP_IMU_EVENT>(m, "IMUEvent")
+        .def_readonly("timestamp", &LEAP_IMU_EVENT::timestamp)
+        .def_readonly("timestamp_hw", &LEAP_IMU_EVENT::timestamp_hw)
+        .def_readonly("flags", &LEAP_IMU_EVENT::flags)
+        .def_readonly("accelerometer", &LEAP_IMU_EVENT::accelerometer)
+        .def_readonly("gyroscope", &LEAP_IMU_EVENT::gyroscope)
+        .def_readonly("temperature", &LEAP_IMU_EVENT::temperature);
+    
+    py::class_<LEAP_IMAGE_EVENT>(m, "ImageEvent");
+    
+    py::class_<_LEAP_TRACKING_MODE_EVENT>(m, "TrackingModeEvent")
+        .def_readonly("reserved", &_LEAP_TRACKING_MODE_EVENT::reserved)
+        .def_readonly("current_tracking_mode", &_LEAP_TRACKING_MODE_EVENT::current_tracking_mode);
+    
+    py::class_<LEAP_FRAME_HEADER>(m, "FrameHeader")
         .def_readonly("frame_id", &LEAP_FRAME_HEADER::frame_id)
         .def_readonly("timestamp", &LEAP_FRAME_HEADER::timestamp);
 
@@ -85,25 +129,6 @@ PYBIND11_MODULE(leapmotion_conn, m)
         .value("eLeapHandType_Left", eLeapHandType_Left)
         .value("eLeapHandType_Right", eLeapHandType_Right)
         .export_values();
-
-    py::class_<LEAP_VECTOR>(m, "Vector")
-        .def_readonly("x", &LEAP_VECTOR::x)
-        .def_readonly("y", &LEAP_VECTOR::y)
-        .def_readonly("z", &LEAP_VECTOR::z)
-        .def("__getitem__", [](const LEAP_VECTOR &v, size_t i)
-             {
-            if (i == 0) return v.x;
-            else if (i == 1) return v.y;
-            else if (i == 2) return v.z;
-            throw py::index_error("Index out of range for LEAP_VECTOR"); })
-        .def_property_readonly("array", [](const LEAP_VECTOR &v)
-             { 
-                py::array_t<float> arr(3);
-                auto buf = arr.mutable_data();
-                buf[0] = v.x;
-                buf[1] = v.y;
-                buf[2] = v.z;
-                return arr; });
 
     py::class_<LEAP_QUATERNION>(m, "Quaternion")
         .def_readonly("x", &LEAP_QUATERNION::x)
