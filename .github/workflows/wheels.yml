@@ -54,14 +54,17 @@ jobs:
     - name: Set up leapmotion SDK (on Windows)
       if: matrix.os == 'windows-latest' && steps.cache-downloads.outputs.cache-hit != 'true'
       run: |
-        curl -L -o ./download/tracking-software-windows-5.20.0.exe https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-windows-5.20.0.exe
-        $proc = Start-Process -FilePath ./download/tracking-software-windows-5.20.0.exe -ArgumentList '/VERYSILENT', '/NOCANCEL', '/NORESTART', '/SUPPRESSMSGBOXES' -Verb RunAs -PassThru
+        mkdir ./download
+        cd ./download
+        # Download the Leap Motion SDK installer
+        curl -L -o tracking-software-windows-5.20.0.exe https://s3.eu-west-1.amazonaws.com/downloads.ultraleap.com/software/tracking-software/5.20.0/tracking-software-windows-5.20.0.exe
+        $proc = Start-Process -FilePath tracking-software-windows-5.20.0.exe -ArgumentList '/VERYSILENT', '/NOCANCEL', '/NORESTART', '/SUPPRESSMSGBOXES' -Verb RunAs -PassThru
         $proc.WaitForExit()
         if ($proc.ExitCode -ne 0) {
           Write-Host "Installation failed with exit code $($proc.ExitCode)"
           exit 1
         }
-        Remove-Item ./download/tracking-software-windows-5.20.0.exe -Force
+        Remove-Item tracking-software-windows-5.20.0.exe -Force
     # - name: Set up leapmotion SDK (on macOS)
     #   if: matrix.os == 'macos-13'
     #   run: |
