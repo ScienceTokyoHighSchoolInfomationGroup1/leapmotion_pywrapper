@@ -81,7 +81,12 @@ private:
   std::function<void(const LEAP_TRACKING_MODE_EVENT *)> onTrackingMode_;
 
   // debug message callback
-  std::function<void(const char *)> debugMessageCallback_;
+  std::function<void(const char *)> debugMessageCallback_ {
+    [](const char *msg) {
+      // Default debug message handler does nothing
+      // Override this in your application if needed
+    }
+  };
 };
 
 #endif // EXAMPLE_CONNECTION_HPP
