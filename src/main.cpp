@@ -10,17 +10,18 @@
 
 namespace py = pybind11;
 
-int add(int a, int b)
-{
-    return a + b;
-}
+py::module mathutils;
+py::object Vector;
+py::object Quaternion;
 
 PYBIND11_MODULE(leapmotion_conn, m)
 {
     m.doc() = "Leap Motion C++ API wrapper"; // Optional module docstring
 
-    m.def("add", &add, "A function that adds two numbers",
-          py::arg("a"), py::arg("b"));
+    mathutils = py::module::import("mathutils");
+    Vector = mathutils.attr("Vector");
+    Quaternion = mathutils.attr("Quaternion");
+
     py::class_<LEAP_VECTOR>(m, "Vector")
         .def_readonly("x", &LEAP_VECTOR::x)
         .def_readonly("y", &LEAP_VECTOR::y)
@@ -38,7 +39,36 @@ PYBIND11_MODULE(leapmotion_conn, m)
                 buf[0] = v.x;
                 buf[1] = v.y;
                 buf[2] = v.z;
-                return arr; });
+                return arr; })
+        .def_property_readonly("Vector", [](const LEAP_VECTOR &v)
+             {
+                return Vector(v.x, v.y, v.z); });
+
+    py::class_<LEAP_QUATERNION>(m, "Quaternion")
+        .def_readonly("x", &LEAP_QUATERNION::x)
+        .def_readonly("y", &LEAP_QUATERNION::y)
+        .def_readonly("z", &LEAP_QUATERNION::z)
+        .def_readonly("w", &LEAP_QUATERNION::w)
+        .def("__getitem__", [](const LEAP_QUATERNION &q, size_t i)
+             {
+            if (i == 0) return q.x;
+            else if (i == 1) return q.y;
+            else if (i == 2) return q.z;
+            else if (i == 3) return q.w;
+            throw py::index_error("Index out of range for LEAP_QUATERNION"); })
+        .def_property_readonly("array", [](const LEAP_QUATERNION &q)
+                { 
+                    py::array_t<float> arr(4);
+                    auto buf = arr.mutable_data();
+                    buf[0] = q.x;
+                    buf[1] = q.y;
+                    buf[2] = q.z;
+                    buf[3] = q.w;
+                    return arr; })
+        .def_property_readonly("Quaternion", [](const LEAP_QUATERNION &q)
+                {
+                    return Quaternion(q.x, q.y, q.z, q.w);
+                });
     
     py::enum_<eLeapDevicePID>(m, "DevicePID")
         .value("eLeapDevicePID_Unknown", eLeapDevicePID_Unknown)
@@ -129,28 +159,6 @@ PYBIND11_MODULE(leapmotion_conn, m)
         .value("eLeapHandType_Left", eLeapHandType_Left)
         .value("eLeapHandType_Right", eLeapHandType_Right)
         .export_values();
-
-    py::class_<LEAP_QUATERNION>(m, "Quaternion")
-        .def_readonly("x", &LEAP_QUATERNION::x)
-        .def_readonly("y", &LEAP_QUATERNION::y)
-        .def_readonly("z", &LEAP_QUATERNION::z)
-        .def_readonly("w", &LEAP_QUATERNION::w)
-        .def("__getitem__", [](const LEAP_QUATERNION &q, size_t i)
-             {
-            if (i == 0) return q.x;
-            else if (i == 1) return q.y;
-            else if (i == 2) return q.z;
-            else if (i == 3) return q.w;
-            throw py::index_error("Index out of range for LEAP_QUATERNION"); })
-        .def_property_readonly("array", [](const LEAP_QUATERNION &q)
-                { 
-                    py::array_t<float> arr(4);
-                    auto buf = arr.mutable_data();
-                    buf[0] = q.x;
-                    buf[1] = q.y;
-                    buf[2] = q.z;
-                    buf[3] = q.w;
-                    return arr; });
 
     py::class_<LEAP_PALM>(m, "Palm")
         .def_readonly("position", &LEAP_PALM::position)

@@ -157,6 +157,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "numpy>=1.19.0",
+        "mathutils>=3.0.0",
     ],
     package_data={
         "leapmotion_conn": ["*.pyi"],
