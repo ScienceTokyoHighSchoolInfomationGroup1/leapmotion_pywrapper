@@ -145,7 +145,7 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="leapmotion_conn",
-    version="0.0.10",
+    version="0.0.11",
     author="yosshipaopao",
     author_email="yosshipaopao@gmail.com",
     description="Leap Motion connection library",
