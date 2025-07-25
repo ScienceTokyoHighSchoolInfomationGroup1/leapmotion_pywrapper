@@ -2,10 +2,14 @@
 #define EXAMPLE_CONNECTION_HPP
 
 #include "LeapC.h"
+#include <cstring>
+#include <iostream>
 #include <functional>
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <chrono>
+#include <future>
 
 class leap_device_wrapper
 {

@@ -1,6 +1,4 @@
 #include "Connection.hpp"
-#include <cstring>
-#include <iostream>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -59,18 +57,35 @@ void Connection::close()
   if (!running_.load())
     return;
 
+  debugMessage("Closing connection...");
   running_.store(false);
-  if (messageThread_.joinable())
-  {
-    debugMessage("Joining message thread...");
-    messageThread_.join();
-    debugMessage("Message thread joined.");
-  }
 
   if (connectionHandle_)
   {
+    debugMessage("Calling LeapCloseConnection...");
     LeapCloseConnection(connectionHandle_);
   }
+
+  if (messageThread_.joinable())
+  {
+    debugMessage("Joining message thread...");
+    
+    // futureとpromiseを使ってタイムアウト付きjoin
+    auto joinTask = std::async(std::launch::async, [this]() {
+      this->messageThread_.join();
+    });
+    
+    if (joinTask.wait_for(std::chrono::seconds(2)) == std::future_status::timeout)
+    {
+      debugMessage("Join timed out, detaching thread");
+      messageThread_.detach();
+    }
+    else
+    {
+      debugMessage("Message thread joined successfully");
+    }
+  }
+
   messageThread_ = std::thread(); // Reset the thread object after joining
 }
 
@@ -169,21 +184,35 @@ LEAP_DEVICE_INFO *Connection::getDeviceProperties()
 void Connection::messageLoop()
 {
   LEAP_CONNECTION_MESSAGE msg;
+  eLeapRS result;
+  
   while (running_.load())
   {
-    // タイムアウトを短縮（1秒から100ms）してより応答性を向上
-    eLeapRS result = LeapPollConnection(connectionHandle_, 100, &msg);
+    // より短いタイムアウトでポーリング
+    result = LeapPollConnection(connectionHandle_, 50, &msg);
 
-    if (!running_.load()) // 再度チェック
+    // running_をもう一度チェック
+    if (!running_.load())
       break;
 
     if (result == eLeapRS_Success)
     {
       handleEvent(msg);
     }
-    else if (result != eLeapRS_Timeout)
+    else if (result == eLeapRS_Timeout)
     {
-      // タイムアウト以外のエラーの場合はログ出力
+      // タイムアウトの場合は継続（running_チェックのため）
+      continue;
+    }
+    else if (result == eLeapRS_NotConnected || result == eLeapRS_UnexpectedClosed)
+    {
+      // 接続が切断された場合はループを抜ける
+      debugMessage("Connection lost, exiting message loop");
+      break;
+    }
+    else
+    {
+      // その他のエラーの場合はログ出力
       debugMessage((std::string("LeapPollConnection error: ") + resultString(result)).c_str());
     }
   }
