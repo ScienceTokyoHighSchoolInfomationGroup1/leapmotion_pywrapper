@@ -30,7 +30,7 @@ Connection::~Connection()
 
 bool Connection::open()
 {
-  if (running_)
+  if (running_.load())
     return true;
 
   if (!connectionHandle_)
@@ -42,7 +42,7 @@ bool Connection::open()
   if (LeapOpenConnection(connectionHandle_) != eLeapRS_Success)
     return false;
 
-  running_ = true;
+  running_.store(true);
   messageThread_ = std::thread(&Connection::messageLoop, this);
 
   {
@@ -56,10 +56,10 @@ bool Connection::open()
 
 void Connection::close()
 {
-  if (!running_)
+  if (!running_.load())
     return;
 
-  running_ = false;
+  running_.store(false);
   if (messageThread_.joinable())
   {
     debugMessage("Joining message thread...");
@@ -110,7 +110,7 @@ void Connection::destroy()
   }
 
   // 接続状態をリセット
-  connected_ = false;
+  connected_.store(false);
 }
 void Connection::cacheFrame(const LEAP_TRACKING_EVENT *frame)
 {
@@ -169,12 +169,12 @@ LEAP_DEVICE_INFO *Connection::getDeviceProperties()
 void Connection::messageLoop()
 {
   LEAP_CONNECTION_MESSAGE msg;
-  while (running_)
+  while (running_.load())
   {
     // タイムアウトを短縮（1秒から100ms）してより応答性を向上
     eLeapRS result = LeapPollConnection(connectionHandle_, 100, &msg);
 
-    if (!running_) // 再度チェック
+    if (!running_.load()) // 再度チェック
       break;
 
     if (result == eLeapRS_Success)
@@ -186,7 +186,6 @@ void Connection::messageLoop()
       // タイムアウト以外のエラーの場合はログ出力
       debugMessage((std::string("LeapPollConnection error: ") + resultString(result)).c_str());
     }
-    debugMessage("LeapPollConnection returned success, processing message...");
   }
   debugMessage("Message loop exiting...");
 }
@@ -196,12 +195,12 @@ void Connection::handleEvent(const LEAP_CONNECTION_MESSAGE &msg)
   switch (msg.type)
   {
   case eLeapEventType_Connection:
-    connected_ = true;
+    connected_.store(true);
     if (onConnect_)
       onConnect_();
     break;
   case eLeapEventType_ConnectionLost:
-    connected_ = false;
+    connected_.store(false);
     if (onDisconnect_)
       onDisconnect_();
     break;
@@ -262,7 +261,7 @@ void Connection::handleEvent(const LEAP_CONNECTION_MESSAGE &msg)
 
 bool Connection::isConnected() const
 {
-  return connected_;
+  return connected_.load();
 }
 
 const char *Connection::resultString(eLeapRS r)
