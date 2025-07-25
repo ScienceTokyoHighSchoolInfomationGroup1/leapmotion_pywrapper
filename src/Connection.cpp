@@ -60,37 +60,58 @@ void Connection::close()
     return;
 
   running_ = false;
-  LeapCloseConnection(connectionHandle_);
-  if (messageThread_.joinable()) {
+  if (messageThread_.joinable())
+  {
     debugMessage("Joining message thread...");
     messageThread_.join();
+    debugMessage("Message thread joined.");
   }
-  debugMessage("Message thread joined.");
+
+  if (connectionHandle_)
+  {
+    LeapCloseConnection(connectionHandle_);
+  }
   messageThread_ = std::thread(); // Reset the thread object after joining
 }
 
 void Connection::destroy()
 {
+  // スレッドとコネクションを安全にクローズ
   close();
+
+  // コネクションハンドルの破棄
   if (connectionHandle_)
   {
     LeapDestroyConnection(connectionHandle_);
     connectionHandle_ = nullptr;
   }
+
+  // メモリの解放
   if (lastFrame_)
   {
-    free(lastFrame_->pHands);
+    if (lastFrame_->pHands)
+    {
+      free(lastFrame_->pHands);
+      lastFrame_->pHands = nullptr;
+    }
     free(lastFrame_);
     lastFrame_ = nullptr;
   }
+
   if (lastDevice_)
   {
-    free(lastDevice_->serial);
+    if (lastDevice_->serial)
+    {
+      free(lastDevice_->serial);
+      lastDevice_->serial = nullptr;
+    }
     free(lastDevice_);
     lastDevice_ = nullptr;
   }
-}
 
+  // 接続状態をリセット
+  connected_ = false;
+}
 void Connection::cacheFrame(const LEAP_TRACKING_EVENT *frame)
 {
   std::lock_guard<std::mutex> lock(dataMutex_);
@@ -150,11 +171,23 @@ void Connection::messageLoop()
   LEAP_CONNECTION_MESSAGE msg;
   while (running_)
   {
-    if (LeapPollConnection(connectionHandle_, 1000, &msg) != eLeapRS_Success)
-      continue;
-    handleEvent(msg);
+    // タイムアウトを短縮（1秒から100ms）してより応答性を向上
+    eLeapRS result = LeapPollConnection(connectionHandle_, 100, &msg);
+
+    if (!running_) // 再度チェック
+      break;
+
+    if (result == eLeapRS_Success)
+    {
+      handleEvent(msg);
+    }
+    else if (result != eLeapRS_Timeout)
+    {
+      // タイムアウト以外のエラーの場合はログ出力
+      debugMessage((std::string("LeapPollConnection error: ") + resultString(result)).c_str());
+    }
   }
-  return;
+  debugMessage("Message loop exiting...");
 }
 
 void Connection::handleEvent(const LEAP_CONNECTION_MESSAGE &msg)
