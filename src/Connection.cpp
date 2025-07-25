@@ -186,6 +186,7 @@ void Connection::messageLoop()
       // タイムアウト以外のエラーの場合はログ出力
       debugMessage((std::string("LeapPollConnection error: ") + resultString(result)).c_str());
     }
+    debugMessage("LeapPollConnection returned success, processing message...");
   }
   debugMessage("Message loop exiting...");
 }
