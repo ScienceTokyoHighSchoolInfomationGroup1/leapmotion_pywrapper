@@ -145,9 +145,8 @@ class CMakeBuild(build_ext):
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
     name="leapmotion_pywrapper",
-    version="0.1.0",
-    author="yosshipaopao",
-    author_email="yosshipaopao@gmail.com",
+    version="1.0.0",
+    author="ScienceTokyoHighSchoolInformationGroup1",
     description="Python wrapper for Leap Motion SDK ",
     long_description="",
     license="MIT",
