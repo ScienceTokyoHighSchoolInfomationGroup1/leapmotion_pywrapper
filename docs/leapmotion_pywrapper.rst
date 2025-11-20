@@ -1,0 +1,2 @@
+.. automodule:: leapmotion_pywrapper
+

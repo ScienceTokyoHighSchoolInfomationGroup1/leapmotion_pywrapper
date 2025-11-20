@@ -1,12 +1,18 @@
 [build-system]
 requires = [
-    "setuptools>=42",
-    "wheel",
-    "ninja",
-    "cmake>=3.12",
-    "pybind11-stubgen"
+  "setuptools>=42",
+  "wheel",
+  "ninja",
+  "cmake>=3.12",
+  "pybind11-stubgen",
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "leapmotion_pywrapper"
+version = "0.1.0"
+license = { text = "MIT" }
+requires-python = ">=3.7"
 
 [tool.mypy]
 files = "setup.py"
@@ -26,8 +32,8 @@ minversion = "6.0"
 addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
 xfail_strict = true
 filterwarnings = [
-    "error",
-    "ignore:(ast.Str|Attribute s|ast.NameConstant|ast.Num) is deprecated:DeprecationWarning:_pytest",
+  "error",
+  "ignore:(ast.Str|Attribute s|ast.NameConstant|ast.Num) is deprecated:DeprecationWarning:_pytest",
 ]
 testpaths = ["tests"]
 
@@ -43,9 +49,9 @@ target-version = "py311"
 
 [tool.ruff.lint]
 extend-select = [
-  "B",    # flake8-bugbear
-  "I",    # isort
-  "PGH",  # pygrep-hooks
-  "RUF",  # Ruff-specific
-  "UP",   # pyupgrade
+  "B",   # flake8-bugbear
+  "I",   # isort
+  "PGH", # pygrep-hooks
+  "RUF", # Ruff-specific
+  "UP",  # pyupgrade
 ]

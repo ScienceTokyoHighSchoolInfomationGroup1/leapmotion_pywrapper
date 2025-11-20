@@ -125,7 +125,7 @@ class CMakeBuild(build_ext):
 
         # Generate stubs for the extension module
         # This is optional, but useful for type checking and IDE support.
-        if self.distribution.get_name() == "leapmotion_conn":
+        if self.distribution.get_name() == "leapmotion_pywrapper":
             # print pyd file full path
             pyd_file = ext_fullpath.with_suffix(".pyd")
             # get folder of pyd file
@@ -144,13 +144,19 @@ class CMakeBuild(build_ext):
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
-    name="leapmotion_conn",
+    name="leapmotion_pywrapper",
     version="0.1.0",
     author="yosshipaopao",
     author_email="yosshipaopao@gmail.com",
-    description="Leap Motion connection library",
+    description="Python wrapper for Leap Motion SDK ",
     long_description="",
-    ext_modules=[CMakeExtension("leapmotion_conn")],
+    license="MIT",
+    classifiers=[
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+    ],
+    ext_modules=[CMakeExtension("leapmotion_pywrapper")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
     extras_require={"test": ["pytest>=6.0"]},
@@ -159,7 +165,7 @@ setup(
         "numpy>=1.19.0",
     ],
     package_data={
-        "leapmotion_conn": ["*.pyi"],
+        "leapmotion_pywrapper": ["*.pyi"],
     },
     include_package_data=True,
 )

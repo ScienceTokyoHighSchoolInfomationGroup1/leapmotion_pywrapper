@@ -15,7 +15,7 @@ int add(int a, int b)
     return a + b;
 }
 
-PYBIND11_MODULE(leapmotion_conn, m)
+PYBIND11_MODULE(leapmotion_pywrapper, m)
 {
     m.doc() = "Leap Motion C++ API wrapper"; // Optional module docstring
 
