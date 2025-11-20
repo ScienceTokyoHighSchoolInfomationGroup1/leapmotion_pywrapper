@@ -1,4 +1,4 @@
-import leapmotion_conn as m
+import leapmotion_pywrapper as m
 
 
 def test_main():

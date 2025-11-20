@@ -30,9 +30,48 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
 ]
 
 autosummary_generate = True
+
+# Make the project importable so autodoc can import the real module when
+# the extension has been built. If the compiled extension is not available,
+# fall back to mocking it so the docs still build.
+import os
+import sys
+import importlib
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+# Common place where build outputs may place extension modules
+BUILD_LIB = os.path.abspath(os.path.join(ROOT, 'build', 'lib'))
+if os.path.isdir(BUILD_LIB) and BUILD_LIB not in sys.path:
+    sys.path.insert(0, BUILD_LIB)
+
+try:
+    importlib.import_module('leapmotion_pywrapper')
+    autodoc_mock_imports = []
+except Exception:
+    autodoc_mock_imports = ['leapmotion_pywrapper']
+
+# Autodoc sensible defaults to include members and inheritance information
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True,
+    'inherited-members': True,
+}
+autodoc_member_order = 'bysource'
+autodoc_typehints = 'description'
+autodoc_typehints_format = 'short'
+
+# Napoleon settings (Google/Numpy style docstring parsing)
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -49,9 +88,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'cmake_example'
-copyright = '2016, Sylvain Corlay'
-author = 'Sylvain Corlay'
+project = 'leapmotion_pywrapper'
+copyright = '2025, ScienceTokyoHighSchoolInformationGroup1'
+author = 'ScienceTokyoHighSchoolInformationGroup1'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -203,7 +242,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'cmake_exampledoc'
+htmlhelp_basename = 'leapmotion_pywrapperdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -225,7 +264,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'cmake_example.tex', 'cmake_example Documentation',
+    (master_doc, 'leapmotion_pywrapper.tex', 'leapmotion_pywrapper Documentation',
      'Sylvain Corlay', 'manual'),
 ]
 
@@ -255,7 +294,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'cmake_example', 'cmake_example Documentation',
+    (master_doc, 'leapmotion_pywrapper', 'leapmotion_pywrapper Documentation',
      [author], 1)
 ]
 
@@ -269,8 +308,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'cmake_example', 'cmake_example Documentation',
-     author, 'cmake_example', 'One line description of project.',
+    (master_doc, 'leapmotion_pywrapper', 'leapmotion_pywrapper Documentation',
+     author, 'leapmotion_pywrapper', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -288,4 +327,6 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+}

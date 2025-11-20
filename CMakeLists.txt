@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4...3.18)
-project(leapmotion_conn VERSION 1.0.0 LANGUAGES CXX)
+project(leapmotion_pywrapper VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -56,34 +56,34 @@ get_target_property(
 )
 
 
-pybind11_add_module(leapmotion_conn src/main.cpp)
+pybind11_add_module(leapmotion_pywrapper src/main.cpp)
 
 add_custom_command(
 	TARGET
-		leapmotion_conn
+		leapmotion_pywrapper
 	POST_BUILD
 	COMMAND
 		${CMAKE_COMMAND} -E copy
 		${LEAPC_SHARED_LIB_PATH}
-		$<TARGET_FILE_DIR:leapmotion_conn>)
+		$<TARGET_FILE_DIR:leapmotion_pywrapper>)
 
 target_link_libraries(
-	leapmotion_conn
+	leapmotion_pywrapper
 	PRIVATE
 		libConnectionCXX
 		LeapSDK::LeapC)
 
 # EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
 # define (VERSION_INFO) here.
-target_compile_definitions(leapmotion_conn
+target_compile_definitions(leapmotion_pywrapper
                            PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
 
 add_executable(
-	leapmotion_conn_test
+	leapmotion_pywrapper_test
 	"src/test.cpp"
 )
 target_link_libraries(
-	leapmotion_conn_test
+	leapmotion_pywrapper_test
 	PRIVATE
 		libConnectionCXX
 		LeapSDK::LeapC)
